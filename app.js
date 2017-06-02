@@ -154,17 +154,14 @@ app.controller('pokerController', ($scope) => {
       }
       if (winningPlayers.length === 1) {
         finalOutputString = `${finalOutputString}Player ${winningPlayers[0]} wins! `;
-
       } else {
         finalOutputString = `${finalOutputString}It's a draw!`;
-
         for (let i = 0; i < noOfPlayers; i += 1) {
           for (let j = 0; j < noOfCards; j += 1) {
             if ((values.indexOf(sortedPlayerArray[i][j].number) + 1) === highestScore) {
               if (suits.indexOf(sortedPlayerArray[i][j].suit) > currentHighestSuit) {
                 currentHighestSuit = suits.indexOf(sortedPlayerArray[i][j].suit);
                 currentHighestCardString = `The winning player is Player ${(i + 1)} as they have the highest card by suit, the ${sortedPlayerArray[i][j].number} of ${sortedPlayerArray[i][j].suit}.`;
-
               }
             }
           }
