@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="en" ng-app="pokerApp">
+  <head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" href="main.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.4.8/angular.min.js"></script>
+    <script src="app.js"></script>
+  </head>
+  <body ng-controller="pokerController">
+      <p>Select the number of players:</p>
+      <select ng-model = "playerNumber" ng-options = "x for x in possibleNoOfPlayers"></select>
+      <p>Select the number of cards dealt to each player:</p>
+      <select ng-model = "cardNumber" ng-options = "x for x in possibleNoOfCardsDealt"></select>
+      <button ng-click = "play()">Deal hands!</button>
+      <pre>{{output}}</pre>
+  </body>
+</html>
