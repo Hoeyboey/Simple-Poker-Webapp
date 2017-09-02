@@ -7,33 +7,14 @@ app.controller('pokerController', ($scope) => {
     20, 21, 22, 23, 24, 25];
   $scope.possibleNoOfCardsDealt = [1, 2, 3, 4, 5];
   $scope.play = () => {
-    // Declaring a bunch of variables here. Not much to see.
+    // Declaring a bunch of variables here. Not much to see. 
     let fullDeck = [];
     let playerHandsValues = [];
     let playerArrayValue = [];
-    let playerArrayValues = []
     let winningPlayers = [];
+    let playerArray = [];
     const values = ['Ace', '2', '3', '4', '5', '6', '7', '8', '9', '10', 'Jack', 'Queen', 'King'];
     const suits = ['Clubs', 'Diamonds', 'Spades', 'Hearts'];
-    let ignoreArray = [];
-    let sortedPlayerArray = [];
-    let playerArray = [];
-    let temporaryHoldingForCardSorting = {};
-    let straightCounter = 0;
-    let numberToCheck = 0;
-    let largerNumberToCheck = 0;
-    let finalOutputString = '';
-    let highestScore = 0;
-    let impossibleCombination = true;
-    let currentIndex = 0;
-    let cardToCheck = 0;
-    let firstIndex = 0;
-    let secondIndex = 0;
-    let currentHighestSuit = 0;
-    let noOfCardsInDeckCurrently = 0;
-    let currentHighestCardString = '';
-    let noOfPlayers = 0;
-    let noOfCards = 0;
 
     // This pair of loops creates the full deck, so that it didn't have to be typed out in on
     // horrible line of 52 seperate objects,
@@ -72,28 +53,33 @@ app.controller('pokerController', ($scope) => {
         playerHandsValues : playerHandsValues
     }
     }
-    // var playerArray, sortedPlayerArray, playerArrayValue, playerHandsValues = playerHandInitialisation(noOfPlayers);
     
     // This checks if you've put an impossible combo in - if you have 20 players with 3 cards
     // each, you'd run out of cards before dealing them all.
     function checkIfTooManyCardOrPlayersInGame(noOfCards, noOfPlayers){
+      let impossibleCombination
       if ((noOfCards * noOfPlayers) > 52) {
         return impossibleCombination = true;
       } else {
         return false
       }
     }
-    function assignHands(noOfCards, noOfPlayers, noOfCardsInDeckCurrently, playerArray, playerArrayValue, playerArrayValues, fullDeck, playerHandsValues) {
+    function assignHands(noOfCards, noOfPlayers, noOfCardsInDeckCurrently, playerArray, 
+                        playerArrayValue, fullDeck, playerHandsValues) {
       for (let h = 0; h < noOfCards; h += 1) {
         for (let i = 0; i < noOfPlayers; i += 1) {
-          // This set of 5 lines assigns each player's hand, and removes the relevant cards from
+          // This set of lines assigns each player's hand, and removes the relevant cards from
           // the full deck. playerArray contains cards and its suit, playerHandsValues just works
           // out the total points in the hand.
           const randomNumber = Math.floor((Math.random() * noOfCardsInDeckCurrently) + 1);
           playerArray[i].push(fullDeck[randomNumber]);
-          playerArrayValue[i].push(values.indexOf(fullDeck[randomNumber].number) + 1);
-          playerHandsValues[i] = playerHandsValues[i] +
-          values.indexOf(fullDeck[randomNumber].number) + 1;
+          let currentCardValue = values.indexOf(fullDeck[randomNumber].number) + 1
+          console.log(currentCardValue)
+          if (currentCardValue > 10) {
+            playerHandsValues[i] += 10
+          } else {
+            playerHandsValues[i] += currentCardValue;
+          }
           fullDeck.splice(randomNumber, 1);
           noOfCardsInDeckCurrently = fullDeck.length - 1;
         }
@@ -107,7 +93,10 @@ app.controller('pokerController', ($scope) => {
         
       }
     }
+    // Sorts by suit using loops - i is current player, k is index of current suit we're comparing again, j is current card we're checking
     function sortHandBySuit(noOfPlayers, noOfCards, suits, playerArray, sortedPlayerArray) {
+      let currentIndex = 0;
+      let cardToCheck = 0;
       for (let i = 0; i < noOfPlayers; i += 1) {
         currentIndex = 0;
         for (let k = 3; k > -1; k -= 1) {
@@ -121,24 +110,27 @@ app.controller('pokerController', ($scope) => {
       }
       return sortedPlayerArray
     }
-    
+    // After sorting by suit, then sorts hands by the number on each card, using loops - i is the current player, k is index of card being sorted
     function sortHandByNumber(noOfPlayers, noOfCards, values, sortedPlayerArray){
+      let temporaryHoldingForCardSorting
       for (let i = 0; i < noOfPlayers; i += 1) {
-        for (let k = 0; k < 4; k += 1) {
-          for (let j = 0; j < noOfCards - 1; j += 1) {
-            if (values.indexOf(sortedPlayerArray[i][j].number) <
-            values.indexOf(sortedPlayerArray[i][j + 1].number) &&
-            sortedPlayerArray[i][j].suit === sortedPlayerArray[i][j + 1].suit) {
-              temporaryHoldingForCardSorting = sortedPlayerArray[i][j + 1];
-              sortedPlayerArray[i][j + 1] = sortedPlayerArray[i][j];
-              sortedPlayerArray[i][j] = temporaryHoldingForCardSorting;
-            }
+        for (let j = 0; j < noOfCards - 1; j += 1) {
+          if (values.indexOf(sortedPlayerArray[i][j].number) <
+              values.indexOf(sortedPlayerArray[i][j + 1].number) &&
+              sortedPlayerArray[i][j].suit === sortedPlayerArray[i][j + 1].suit) {
+                temporaryHoldingForCardSorting = sortedPlayerArray[i][j + 1];
+                sortedPlayerArray[i][j + 1] = sortedPlayerArray[i][j];
+                sortedPlayerArray[i][j] = temporaryHoldingForCardSorting;
           }
         }
       }
       return sortedPlayerArray
     }
+    // Looks for straights, the highest possible value. h is current player, i is current card we're checking 
     function checkForStraights(noOfPlayers, noOfCards, playerArrayValue, playerHandsValues) {
+      let straightCounter
+      let numberToCheck
+      let largerNumberToCheck
       for (let h = 0; h < noOfPlayers; h += 1) {
         straightCounter = 0;
         for (let i = 0; i < (noOfCards - 1); i += 1) {
@@ -151,11 +143,15 @@ app.controller('pokerController', ($scope) => {
         if (straightCounter === 5) {
           playerHandsValues[h] = 40;
         }
-        else playerArrayValues[h] = 0
       }
       return playerHandsValues
     }
-    function checkForPairsAndThreeOfAKinds(h, noOfCards, playerArrayValue, ignoreArray, playerHandsValues){
+    //Similarly to checking for pairs, checks for pairs and three of a kinds
+    function checkForPairsAndThreeOfAKinds(h, noOfCards, playerArrayValue, ignoreArray, 
+                                          playerHandsValues){
+      let numberToCheck
+      let firstIndex
+      let secondIndex
       for (let j = 0; j < (noOfCards - 1); j += 1) {
         numberToCheck = playerArrayValue[h][j];
         firstIndex = j;
@@ -172,13 +168,17 @@ app.controller('pokerController', ($scope) => {
       }
       return playerHandsValues
     }
+    //Creates the final ouput, using previously calculated values and some template sentences
     function formatOutput(noOfPlayers, noOfCards, sortedPlayerArray, playerHandsValues){
+      let finalOutputString = ""
       for (let k = 0; k < noOfPlayers; k += 1) {
         finalOutputString = `${finalOutputString}Player ${k + 1}'s hand is: `;
         for (let l = 0; l < noOfCards; l += 1) {
-          finalOutputString = `${finalOutputString}${sortedPlayerArray[k][l].number} of ${sortedPlayerArray[k][l].suit}`;
+          finalOutputString = `${finalOutputString}${sortedPlayerArray[k][l].number} of 
+                              ${sortedPlayerArray[k][l].suit}`;
           if (l === (noOfCards - 1)) {
-            finalOutputString = `${finalOutputString}. The value of their hand is ${playerHandsValues[k]}. \n`;
+            finalOutputString = `${finalOutputString}. The value of their hand is 
+                                ${playerHandsValues[k]}. \n`;
           } else {
             finalOutputString = `${finalOutputString}, `;
           }
@@ -186,8 +186,12 @@ app.controller('pokerController', ($scope) => {
       }
       return finalOutputString;
     }
-    function calculateWinner(playerHandsValues, winningPlayers, finalOutputString, noOfPlayers, noOfCards, values, sortedPlayerArray, suit){
-      currentHighestCardString = ""
+    // Calculates the winner based on value of the hand and, in the case of a draw, the suit
+    function calculateWinner(playerHandsValues, winningPlayers, finalOutputString, noOfPlayers, 
+                            noOfCards, values, sortedPlayerArray, suit){
+      let currentHighestCardString = ""
+      let currentHighestSuit = 0
+      let highestScore
       highestScore = Math.max.apply(null, playerHandsValues);
       for (let z = 0; z < playerHandsValues.length; z += 1) {
         if (playerHandsValues[z] === highestScore) {
@@ -201,9 +205,13 @@ app.controller('pokerController', ($scope) => {
         finalOutputString = `${finalOutputString}It's a draw!`;
         for (let i = 0; i < noOfPlayers; i += 1) {
           for (let j = 0; j < noOfCards; j += 1) {
-            if ((values.indexOf(sortedPlayerArray[i][j].number) + 1) === highestScore && suits.indexOf(sortedPlayerArray[i][j].suit) > currentHighestSuit) {
+            if ((values.indexOf(sortedPlayerArray[i][j].number) + 1) === highestScore && 
+                suits.indexOf(sortedPlayerArray[i][j].suit) > currentHighestSuit) {
                 currentHighestSuit = suits.indexOf(sortedPlayerArray[i][j].suit);
-                currentHighestCardString = `The winning player is Player ${(i + 1)} as they have the highest card by suit, the ${sortedPlayerArray[i][j].number} of ${sortedPlayerArray[i][j].suit}.`;
+                currentHighestCardString = `The winning player is Player ${(i + 1)} as they have 
+                                            the highest card by suit, the 
+                                            ${sortedPlayerArray[i][j].number} of 
+                                            ${sortedPlayerArray[i][j].suit}.`;
             }
           }
         }
@@ -211,29 +219,67 @@ app.controller('pokerController', ($scope) => {
       finalOutputString += currentHighestCardString
       return finalOutputString
     }
-    function beginDealing(playerArray, playerArrayValue, playerArrayValues, fullDeck, suits, values) {
-      var deckCreationObj = deckCreation(values, suits, fullDeck); //deckCreationObj contain fullDeck, noOfCardsInDeckCurrently, noOfPlayers, and noOfCards
-      var playerHandInitialisationObj = playerHandInitialisation(deckCreationObj.noOfPlayers); //playerHandInitialisationObj contains playerArray, sortedPlayerArray, playerArrayValue and playerHandsValues
-      impossibleCombination = checkIfTooManyCardOrPlayersInGame(deckCreationObj.noOfCards, deckCreationObj.noOfPlayers);
-      var assignHandsObj = assignHands(deckCreationObj.noOfCards, deckCreationObj.noOfPlayers, deckCreationObj.noOfCardsInDeckCurrently, playerHandInitialisationObj.playerArray, playerHandInitialisationObj.playerArrayValue, playerHandInitialisationObj.playerArrayValues, deckCreationObj.fullDeck, playerHandInitialisationObj.playerHandsValues); //assignHandsObj contains noOfCardsInDeckCurrently, playerArray, playerArrayValue, playerHandsValues, fullDeck
-      sortedPlayerArray = sortHandBySuit(deckCreationObj.noOfPlayers, deckCreationObj.noOfCards, suits, assignHandsObj.playerArray, playerHandInitialisationObj.sortedPlayerArray);
-      sortedPlayerArray = sortHandByNumber(deckCreationObj.noOfPlayers, deckCreationObj.noOfCards, values, sortedPlayerArray);
-      playerHandsValues = checkForStraights(deckCreationObj.noOfPlayers, deckCreationObj.noOfCards, assignHandsObj.playerArrayValue, assignHandsObj.playerHandsValues);
-      for (let x = 0; x < noOfPlayers; x += 1) {
-        if (playerHandsValues[x] != 40) {
-          playerHandsValues = checkForPairsAndThreeOfAKinds(x, deckCreationObj.noOfCards, assignHandsObj.playerArrayValue, ignoreArray, assignHandsObj.playerHandsValues)
+    // This function defines the order of the functions above and runs them all
+    function beginDealing(playerArray, playerArrayValue, playerHandsValues, fullDeck, suits, values) {
+      let ignoreArray = []
+      let deckCreationObj = deckCreation(values, suits, fullDeck); //deckCreationObj contain fullDeck, noOfCardsInDeckCurrently, noOfPlayers, and noOfCards
+      let playerHandInitialisationObj = playerHandInitialisation(deckCreationObj.noOfPlayers); //playerHandInitialisationObj contains playerArray, sortedPlayerArray, playerArrayValue and playerHandsValues
+      let impossibleCombination = checkIfTooManyCardOrPlayersInGame(deckCreationObj.noOfCards, 
+                                  deckCreationObj.noOfPlayers);
+      let assignHandsObj = assignHands(deckCreationObj.noOfCards, deckCreationObj.noOfPlayers, 
+                           deckCreationObj.noOfCardsInDeckCurrently, 
+                           playerHandInitialisationObj.playerArray, 
+                           playerHandInitialisationObj.playerArrayValue, 
+                           deckCreationObj.fullDeck, 
+                           playerHandInitialisationObj.playerHandsValues); //assignHandsObj contains noOfCardsInDeckCurrently, playerArray, playerArrayValue, playerHandsValues, fullDeck
+      console.log(assignHandsObj.playerHandsValues[0])
+      let sortedPlayerArray = sortHandBySuit(deckCreationObj.noOfPlayers, 
+                              deckCreationObj.noOfCards, 
+                              suits, 
+                              assignHandsObj.playerArray, 
+                              playerHandInitialisationObj.sortedPlayerArray);
+      sortedPlayerArray = sortHandByNumber(deckCreationObj.noOfPlayers, 
+                          deckCreationObj.noOfCards, 
+                          values, 
+                          sortedPlayerArray);
+      playerHandsValues = checkForStraights(deckCreationObj.noOfPlayers, 
+                          deckCreationObj.noOfCards, 
+                          assignHandsObj.playerArrayValue, 
+                          assignHandsObj.playerHandsValues);
+      for (let x = 0; x < deckCreationObj.noOfPlayers; x += 1) {
+        if (assignHandsObj.playerHandsValues[x] != 40) {
+          playerHandsValues = checkForPairsAndThreeOfAKinds(x, 
+                              deckCreationObj.noOfCards, 
+                              assignHandsObj.playerArrayValue, 
+                              ignoreArray, 
+                              assignHandsObj.playerHandsValues)
         }
       }
       if (impossibleCombination == true) {
         $scope.output = 'You\'ve given me a combination that\'s impossible with a 52 card deck! Try something else.';
       } else {
-        finalOutputString = formatOutput(deckCreationObj.noOfPlayers, deckCreationObj.noOfCards, sortedPlayerArray, assignHandsObj.playerHandsValues)
+        let finalOutputString = formatOutput(deckCreationObj.noOfPlayers, 
+                                deckCreationObj.noOfCards, 
+                                sortedPlayerArray, 
+                                assignHandsObj.playerHandsValues)
 
-        finalOutputString = calculateWinner(assignHandsObj.playerHandsValues, winningPlayers, finalOutputString, deckCreationObj.noOfPlayers, deckCreationObj.noOfCards, values, sortedPlayerArray, suits)
-        console.log(finalOutputString)  
+        finalOutputString = calculateWinner(assignHandsObj.playerHandsValues, 
+                            winningPlayers, 
+                            finalOutputString,
+                            deckCreationObj.noOfPlayers, 
+                            deckCreationObj.noOfCards, 
+                            values, 
+                            sortedPlayerArray, 
+                            suits)
         $scope.output = finalOutputString
       }
     }
-    beginDealing(playerArray, playerArrayValue, playerArrayValues, fullDeck, suits, values);
+    // Calls our main function to run it all
+    beginDealing(playerArray, 
+    playerArrayValue, 
+    playerHandsValues, 
+    fullDeck, 
+    suits, 
+    values);
   }
 });

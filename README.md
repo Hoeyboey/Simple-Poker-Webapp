@@ -4,4 +4,4 @@ Hey! This is a very simple project that allows you to play a form of poker (well
  - A three of a kind gives 20 extra points
  - A straight gives 40 extra points
  
-Very simple, took a couple of hours to complete. Formatted to the Airbnb JavaScript style guide.
+Very simple, took a couple of hours to complete. Formatted to the Airbnb JavaScript style guide. To run, just load it up, should be all fine. If not, give me a shout.
