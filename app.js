@@ -141,7 +141,7 @@ app.controller('pokerController', ($scope) => {
           }
         }
         if (straightCounter === 5) {
-          playerHandsValues[h] = 40;
+          playerHandsValues[h] += 40;
         }
       }
       return playerHandsValues
